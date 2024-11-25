@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits } from "discord.js";
+import { ButtonBuilder, ButtonStyle, Client, GatewayIntentBits } from "discord.js";
 import { loadCommands } from "./helpers/commands-helper.js";
 import {config} from "dotenv";
 
@@ -8,6 +8,11 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // Load commands
 loadCommands(client);
+
+const button = new ButtonBuilder().setCustomId("button-1").setLabel("Cancle").setStyle(ButtonStyle.Success)
+client.on("messageCreate", async (message) => {
+    client
+})
 
 client.on("interactionCreate", async (interaction) => {
     if (!interaction.isCommand()) return;

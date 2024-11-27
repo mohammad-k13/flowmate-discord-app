@@ -1,23 +1,14 @@
-import { SlashCommandBuilder } from "discord.js";
+import { InteractionContextType, SlashCommandBuilder } from "discord.js";
 
 export default {
-    data: new SlashCommandBuilder()
-        .setName("me")
-        .setDescription("Describe yourself or say something in a special way.")
-        .addStringOption(option =>
-            option
-                .setName("message") // Option name
-                .setDescription("Write your custom message.") // Description shown to users
-                .setRequired(true) // Make this input required
-        ),
+    data: new SlashCommandBuilder().setName("input-test").setDescription('sdfsdf').addStringOption(option => option.setName("tet").setRequired(true)),
+        // .setName("input-test")
+        // .setDescription("Select a member and ban them.")
+        // .addStringOption((option) => option.setName("reason").setDescription("The reason for banning").setRequired(true))
+        // .setContexts(InteractionContextType.Guild),
     async execute(interaction) {
-        // Get the user's message input
-        const message = interaction.options.getString("message");
-
-        // Customize the output with `/me`-like behavior
-        await interaction.reply({
-            content: `*${interaction.user.username} ${message}*`, // Italicized custom message with the user's name
-            ephemeral: false, // Set to true if you want the reply visible only to the user
-        });
+        console.log(interaction.options)
+        const reason = interaction.options.getString("reason") ?? "No reason provided";
+        await interaction.reply(`Banning  for reason: ${reason}`);
     },
 };

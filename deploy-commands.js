@@ -35,7 +35,7 @@ const rest = new REST({ version: "10" }).setToken(TOKEN);
         console.log("Started refreshing application (/) commands.");
 
         console.log(commands);
-        await rest.put(Routes.applicationCommands(CLIENT_ID), { body: commands });
+        await rest.put(Routes.applicationCommands(CLIENT_ID, "1310668153126387804"), { body: commands });
 
         console.log("Successfully reloaded application (/) commands.");
     } catch (error) {

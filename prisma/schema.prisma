@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime
+  User              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+  User                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model Edge {
+  id                           String   @id
+  sourceNodeId                 String
+  targetNodeId                 String
+  workflowId                   String
+  data                         Json?
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime
+  Node_Edge_sourceNodeIdToNode Node     @relation("Edge_sourceNodeIdToNode", fields: [sourceNodeId], references: [id])
+  Node_Edge_targetNodeIdToNode Node     @relation("Edge_targetNodeIdToNode", fields: [targetNodeId], references: [id])
+  Workflow                     Workflow @relation(fields: [workflowId], references: [id])
+}
+
+model Node {
+  id                           String    @id
+  type                         String
+  workflowId                   String
+  positionX                    Float
+  positionY                    Float
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime
+  Edge_Edge_sourceNodeIdToNode Edge[]    @relation("Edge_sourceNodeIdToNode")
+  Edge_Edge_targetNodeIdToNode Edge[]    @relation("Edge_targetNodeIdToNode")
+  Workflow                     Workflow  @relation(fields: [workflowId], references: [id])
+  NodeData                     NodeData?
+}
+
+model NodeData {
+  id          String   @id
+  nodeId      String   @unique
+  title       String
+  description String
+  prompt      String?
+  config      Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  Node        Node     @relation(fields: [nodeId], references: [id])
+}
+
+model OAuthToken {
+  id           Int      @id @default(autoincrement())
+  userId       String
+  provider     String
+  accessToken  String
+  refreshToken String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  User         User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, provider])
+}
+
+model Session {
+  id           Int      @id @default(autoincrement())
+  sessionToken String   @unique
+  userId       String   @unique
+  expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String          @id
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  Account       Account[]
+  Authenticator Authenticator[]
+  OAuthToken    OAuthToken[]
+  Session       Session?
+
+  @@unique([id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Workflow {
+  id          String   @id
+  name        String
+  description String?
+  userId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  Edge        Edge[]
+  Node        Node[]
+}
